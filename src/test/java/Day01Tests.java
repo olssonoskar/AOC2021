@@ -6,6 +6,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Part 1 - Count the times that depth increases compared to previous value
+ * Part 2 - Same as previous, but with windows of 3 depth measurements per comparison
+ */
 class Day01Tests {
 
     private final InputParser parser = new InputParser();
