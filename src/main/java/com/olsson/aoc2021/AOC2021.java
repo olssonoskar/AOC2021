@@ -7,7 +7,8 @@ public class AOC2021 {
     private static void run() {
         List.of(
                 new Day01(),
-                new Day02()
+                new Day02(),
+                new Day03()
         ).forEach(Solution::solve);
     }
 
