@@ -8,7 +8,8 @@ public class AOC2021 {
         List.of(
                 new Day01(),
                 new Day02(),
-                new Day03()
+                new Day03(),
+                new Day04()
         ).forEach(Solution::solve);
     }
 
