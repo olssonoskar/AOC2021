@@ -33,7 +33,7 @@ class Day08Tests {
     @Test
     void part2Solution() {
         var day = new Day08();
-        assertEquals("61229", day.part2(day.getInput()));
+        assertEquals("1012089", day.part2(day.getInput()));
     }
 
     String example = """
