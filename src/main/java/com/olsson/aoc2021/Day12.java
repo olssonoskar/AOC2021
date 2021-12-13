@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class Day12 implements Solution {
 
@@ -36,25 +35,19 @@ public class Day12 implements Solution {
      * Iterate from start through all nodes and add all full paths to set
      * If extraVisit, do not add to visited nodes, allows us to visit a minor cave twice
      */
-    private Set<Path> exploreCaves(Cave cave, Set<Cave> caves, Path path, Set<Path> toEnd, boolean extraVisit) {
-        Cave end = null;
+    private Set<Path> exploreCaves(Cave cave, Set<Cave> caves, Path path, Set<Path> fullPaths, boolean extraVisit) {
         Path newPath = path;
         if (!extraVisit) {
             newPath = path.add(cave);
         }
-        var unexplored = unexploredCaves(cave, caves, path);
-        for (Cave nextCave : unexplored) {
-            // Delay end cave to get all Paths
+        for (Cave nextCave : unexploredCaves(cave, caves, path)) {
             if (nextCave.name.equals("end")) {
-                end = nextCave;
+                fullPaths.add(newPath.add(nextCave));
                 continue;
             }
-            exploreCaves(nextCave, caves, newPath, toEnd, false);
+            exploreCaves(nextCave, caves, newPath, fullPaths, false);
         }
-        if (end != null) {
-            toEnd.add(newPath.add(end));
-        }
-        return toEnd;
+        return fullPaths;
     }
 
     /**
@@ -63,57 +56,27 @@ public class Day12 implements Solution {
      * This is done first in each cave that we explore the same way we do Part
      */
     private Set<Path> exploreCavesWithExtraVisit(Cave cave, Set<Cave> caves, Path path, Set<Path> fullPaths) {
-        Cave end = null;
         var newPath = path.add(cave);
-        var minor = getMinorCaves(cave, caves)
-                .toList();
+        var minor = getMinorCaves(cave, caves);
         for (Cave nextCave : minor) {
             exploreCaves(nextCave, caves, newPath.addWithoutVisit(nextCave), fullPaths, true);
         }
-        var unexplored = unexploredCaves(cave, caves, path);
-        for (Cave nextCave : unexplored) {
-            // Delay end cave to get all Paths
+        for (Cave nextCave : unexploredCaves(cave, caves, path)) {
             if (nextCave.name.equals("end")) {
-                end = nextCave;
+                fullPaths.add(newPath.add(nextCave));
                 continue;
             }
             exploreCavesWithExtraVisit(nextCave, caves, newPath, fullPaths);
         }
-        if (end != null) {
-            fullPaths.add(newPath.add(end));
-        }
         return fullPaths;
     }
 
-    private Stream<Cave> getMinorCaves(Cave cave, Set<Cave> caves) {
+    private List<Cave> getMinorCaves(Cave cave, Set<Cave> caves) {
         return cave.neighbors.stream()
                 .map(name -> getCave(caves, name))
                 .filter(Cave::isMinor)
-                .filter(theCave -> !theCave.name.equals(START) && !theCave.name.equals("end"));
-    }
-
-    private record Cave(String name, Set<String> neighbors) {
-        private boolean isMinor() {
-            return name.toLowerCase().equals(name);
-        }
-
-        private boolean fullyExplored(Set<String> visited) {
-            return visited.containsAll(neighbors);
-        }
-    }
-
-    private record Path(String path, Set<String> visited) {
-        Path add(Cave cave) {
-            var newVisited = new HashSet<>(this.visited);
-            if (cave.isMinor()) {
-                newVisited.add(cave.name);
-            }
-            return new Path(path + "," + cave.name, newVisited);
-        }
-
-        Path addWithoutVisit(Cave cave) {
-            return new Path(path + "," + cave.name, new HashSet<>(visited));
-        }
+                .filter(theCave -> !theCave.name.equals(START) && !theCave.name.equals("end"))
+                .toList();
     }
 
     private Set<Cave> createCaverns(List<String> input) {
@@ -165,6 +128,29 @@ public class Day12 implements Solution {
             }
             return true;
         };
+    }
+
+    private record Cave(String name, Set<String> neighbors) {
+        private boolean isMinor() {
+            return name.toLowerCase().equals(name);
+        }
+        private boolean fullyExplored(Set<String> visited) {
+            return visited.containsAll(neighbors);
+        }
+    }
+
+    private record Path(String path, Set<String> visited) {
+        Path add(Cave cave) {
+            var newVisited = new HashSet<>(this.visited);
+            if (cave.isMinor()) {
+                newVisited.add(cave.name);
+            }
+            return new Path(path + "," + cave.name, newVisited);
+        }
+
+        Path addWithoutVisit(Cave cave) {
+            return new Path(path + "," + cave.name, new HashSet<>(visited));
+        }
     }
 
     @Override

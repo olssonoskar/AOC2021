@@ -1,6 +1,5 @@
 package com.olsson.aoc2021;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -19,14 +18,14 @@ public class Day03 implements Solution {
         for (int i = 0; i < bitLength; i++) {
             gammaRate.append(mostCommonAtIndex(input, i));
         }
-        return String.valueOf(convertBinary(gammaRate.toString()) * convertBinary(invert(gammaRate.toString())));
+        return String.valueOf(convertFromBinary(gammaRate.toString()) * convertFromBinary(invert(gammaRate.toString())));
     }
 
     @Override
     public String part2(List<String> input) {
         var o2 = findO2GenRating(input);
         var co2 = findCO2ScrubRating(input);
-        return String.valueOf(convertBinary(o2) * convertBinary(co2));
+        return String.valueOf(convertFromBinary(o2) * convertFromBinary(co2));
     }
 
     private char mostCommonAtIndex(List<String> input, int index) {
@@ -54,9 +53,8 @@ public class Day03 implements Solution {
         return findRating(input, this::leastCommonAtIndex);
     }
 
-    private String findRating(List<String> input, BiFunction<List<String>, Integer, Character> findExpectedBit) {
-        List<String> ratings = new ArrayList<>(input);
-        var bitLength = input.get(0).length();
+    private String findRating(List<String> ratings, BiFunction<List<String>, Integer, Character> findExpectedBit) {
+        var bitLength = ratings.get(0).length();
         for (int i = 0; i < bitLength; i++) {
             var currentBit = findExpectedBit.apply(ratings, i);
             ratings = filterRatings(ratings, currentBit, i);
@@ -73,7 +71,7 @@ public class Day03 implements Solution {
                 .toList();
     }
 
-    private int convertBinary(String binary) {
+    private int convertFromBinary(String binary) {
         return Integer.parseInt(binary, 2);
     }
 
