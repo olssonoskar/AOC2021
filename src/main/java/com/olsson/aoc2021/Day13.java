@@ -33,6 +33,7 @@ public class Day13 implements Solution {
             }
         }
         StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         for (int i = 0; i < 7; i++) {
             for (int k = 0; k < 40; k++) {
                 if (paper.dots.contains(new Point(k, i))) {
