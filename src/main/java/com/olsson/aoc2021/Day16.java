@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.LongStream;
 
 public class Day16 implements Solution {
 
@@ -44,22 +45,26 @@ public class Day16 implements Solution {
      * Once we only have values, perform operation of this type on them
      */
     private String evaluateOperations(Packet packet) {
-        if(packet.subPackets.isEmpty()) {
+        if (packet.subPackets.isEmpty()) {
             return packet.bitValue;
         }
         var values = packet.subPackets.stream()
                 .map(this::evaluateOperations)
                 .toList();
-        return Long.toBinaryString(doOperation((int)(packet.type), values));
+        return Long.toBinaryString(doOperation((int) (packet.type), values));
     }
 
     private Long doOperation(int type, List<String> bitValues) {
         var fallback = parseBits(bitValues.get(0));
+        LongStream values = LongStream.empty();
+        if (type < 4) {
+            values = bitValues.stream().map(this::parseBits).mapToLong(i -> i);
+        }
         return switch (type) {
-            case 0 -> bitValues.stream().map(this::parseBits).mapToLong(i -> i).sum();
-            case 1 -> bitValues.stream().map(this::parseBits).mapToLong(i -> i).reduce((left, right) -> left * right).orElse(fallback);
-            case 2 -> bitValues.stream().map(this::parseBits).mapToLong(i -> i).min().orElse(fallback);
-            case 3 -> bitValues.stream().map(this::parseBits).mapToLong(i -> i).max().orElse(fallback);
+            case 0 -> values.sum();
+            case 1 -> values.reduce((left, right) -> left * right).orElse(fallback);
+            case 2 -> values.min().orElse(fallback);
+            case 3 -> values.max().orElse(fallback);
             case 5 -> parseBits(bitValues.get(0)) > parseBits(bitValues.get(1)) ? 1L : 0L;
             case 6 -> parseBits(bitValues.get(0)) < parseBits(bitValues.get(1)) ? 1L : 0L;
             case 7 -> bitValues.get(0).equalsIgnoreCase(bitValues.get(1)) ? 1L : 0L;
@@ -94,14 +99,16 @@ public class Day16 implements Solution {
             packets.add(packet);
             parsedBits = LENGTH_HEADER_LENGTH + result.parsedBits();
         }
-
         return new Result(packets, parsedBits);
     }
 
+    /**
+     * Parse packets base on the length that was given in the header message
+     */
     private Result parseLength(String bits) {
         int parseAtIndex = 0;
         var packets = new ArrayList<Packet>();
-        while(parseAtIndex < bits.length() && !isZeroTrail(bits.substring(parseAtIndex))) {
+        while (parseAtIndex < bits.length() && !isZeroTrail(bits.substring(parseAtIndex))) {
             var result = parsePackets(bits.substring(parseAtIndex));
             packets.addAll(result.packets);
             parseAtIndex += result.parsedBits;
@@ -109,6 +116,9 @@ public class Day16 implements Solution {
         return new Result(packets, bits.length());
     }
 
+    /**
+     * Parse packets base on the amount that was given in the header message
+     */
     private Result parsePackets(String bits, long numberOfPackets) {
         var parseAtIndex = 0;
         var allPackets = new ArrayList<Packet>();
@@ -144,9 +154,14 @@ public class Day16 implements Solution {
         return Long.parseLong(bits, 2);
     }
 
-    private record Packet(long version, long type, long length, long data, String bitValue, List<Packet> subPackets) {}
-    private record Result(List<Packet> packets, int parsedBits){}
-    private record Value(String value, int parsedBits) {}
+    private record Packet(long version, long type, long length, long data, String bitValue, List<Packet> subPackets) {
+    }
+
+    private record Result(List<Packet> packets, int parsedBits) {
+    }
+
+    private record Value(String value, int parsedBits) {
+    }
 
     @Override
     public String getDay() {
