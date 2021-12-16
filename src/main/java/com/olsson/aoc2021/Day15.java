@@ -7,6 +7,10 @@ public class Day15 implements Solution {
 
     int[][] cave;
 
+    /**
+     * Negative 1 for both parts as we start in the first risk zone which is not counted in assignment
+     */
+
     @Override
     public String part1(List<String> input) {
         cave = generate(input);
