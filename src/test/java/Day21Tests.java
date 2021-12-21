@@ -14,13 +14,19 @@ class Day21Tests {
     @Test
     void part1Solution() {
         var day = new Day21();
-        assertEquals("739785", day.part1(day.getInput()));
+        assertEquals("503478", day.part1(day.getInput()));
     }
 
     @Test
     void part2Example() {
         var day = new Day21();
-        assertEquals("341960390180808", day.part2(example.lines().toList()));
+        assertEquals("444356092776315", day.part2(example.lines().toList()));
+    }
+
+    @Test
+    void part2Solution() {
+        var day = new Day21();
+        assertEquals("716241959649754", day.part2(day.getInput()));
     }
 
     String example = """

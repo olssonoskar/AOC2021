@@ -33,7 +33,7 @@ public class Day21 implements Solution {
         var player2 = new PlayerStats(2, Integer.parseInt(String.valueOf(input.get(1).charAt(input.get(1).length() - 1))), 0);
         var cache = new HashMap<String, Wins>();
         var standings = nextPlayer(player1, player2, cache);
-        return String.valueOf(Math.min(standings.player1, standings.player2));
+        return String.valueOf(Math.max(standings.player1, standings.player2));
     }
 
     private Wins playDimension(PlayerStats playerTurn, PlayerStats other, int roll, Map<String, Wins> cache) {
@@ -83,6 +83,7 @@ public class Day21 implements Solution {
             }
         }
     }
+    
     private record PlayerStats(int player, int pos, int score){
         private PlayerStats updateWith(int roll) {
             var nextPos = (pos + roll) % 10;
@@ -90,7 +91,7 @@ public class Day21 implements Solution {
             if(nextPos == 0) {
                 newScore = score + 10;
             } else {
-                newScore = score + pos;
+                newScore = score + nextPos;
             }
             return new PlayerStats(player, nextPos, newScore);
         }
